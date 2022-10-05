@@ -2,16 +2,16 @@
 This repository hosts a Human Resource Analytics Project executed using R programming. My main focus is to conduct Exploratory Data Analysis (EDA) and predict employee behavior using a dataset I downloaded from Kaggle.
 The dataset contains information about employees who worked in an unknown company. The columns in the dataset include:
 
-  Satisfaction level (on a scale of 0-1)
-  last evaluation (on a scale of 0-1)
-  Number of projects
-  Average monthly hours 
-  Time spent in the company in years
-  Work accident (1 if one had an accident, 0, otherwise)
-  Left (1 if left, 0 otherwise)
-  Promotion last five years (1 if promoted, 0 otherwise)
-  Department 
-  Salary (low, medium or high)
+  1. Satisfaction level (on a scale of 0-1)
+  2. Last evaluation (on a scale of 0-1)
+  3. Number of projects
+  4. Average monthly hours 
+  5. Time spent in the company in years
+  6. Work accident (1 if one had an accident, 0, otherwise)
+  7. Left (1 if left, 0 otherwise)
+  8. Promotion last five years (1 if promoted, 0 otherwise)
+  9. Department 
+  10.Salary (low, medium or high)
 
 ### Project Objectives 
 1. To determine which variables have a direct and clear impact on employee retention, i.e. whether they leave the company or continue to work. Achieve this using EDA.
