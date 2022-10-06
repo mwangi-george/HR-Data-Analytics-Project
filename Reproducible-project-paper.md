@@ -334,7 +334,7 @@ support department as the top 3.
 #Modify the promotion_last_5years variable into "promoted" and "not promoted" for easy understanding of the visualization
 hr_data <- hr_data %>% 
   mutate(promotion_last_5years = if_else(promotion_last_5years == 1, "promoted", "not promoted"))
-# print the fisrt 3 rows 
+# print the first 3 rows 
 head(hr_data, 3)
 ```
 

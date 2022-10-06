@@ -85,7 +85,22 @@ hr_data %>%
   theme(axis.text.x = element_text(angle = 90))+
   labs(title = "Employee Retention by Department")
 
+#Modify the promotion_last_5years variable into "promoted" and "not promoted" for easy understanding of the visualization
+hr_data <- hr_data %>% 
+  mutate(promotion_last_5years = if_else(promotion_last_5years == 1, "promoted", "not promoted"))
 
+# print the first 3 rows 
+head(hr_data, 3)
+
+# count the number of employee in each promotion category and group by whether they left or not
+xtabs(~ promotion_last_5years + left, data = hr_data)
+
+# visualizing the above table
+hr_data %>% 
+  ggplot(aes(promotion_last_5years, fill = left))+
+  geom_bar(position = "dodge", alpha = 0.8)+
+  theme_classic()+
+  labs(title = "Employe Retention by Promotion last 5 years")
 
 
 
