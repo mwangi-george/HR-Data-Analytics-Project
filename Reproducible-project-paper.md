@@ -43,8 +43,6 @@ library(tidyverse)
     ## ✖ dplyr::lag()    masks stats::lag()
 
 ``` r
-# the argument quietly = T turns off verbose messages when loading the package.
-
 # loading the package zoo for efficient dummy variable creation.
 library(zoo)
 ```
@@ -195,11 +193,11 @@ In this section, the objective is to find out which variables have a
 direct and clear impact on employee retention. To accomplish this, I
 will group the employees into two; those who left `yes` and those who
 stayed `no`. For the numeric variables, I will calculate the mean for
-each of the groups. These means are useful can be useful metrics to
-explain employee retention.
+each of the groups. These means can be useful metrics to explain
+employee retention.
 
 ``` r
-# summarize the left employees based on mean (EDA)
+# summarize the data using the variable left based on mean (EDA)
 hr_data %>% 
   group_by(left) %>% 
   summarise(mean_satisfaction_level = mean(satisfaction_level),
@@ -270,7 +268,7 @@ ggplot(data = hr_data)+
   theme_classic()
 ```
 
-![](HR-Data-Analytics-Project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 From the above graph, most of the employees who left the company were in
 the low salary category, followed by medium then high. I notice that
@@ -327,13 +325,13 @@ hr_data %>%
   labs(title = "Employee Retention by Department")
 ```
 
-![](HR-Data-Analytics-Project_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 From the above chart, most of the employees who left the firm were in
 the sales department, followed by the technical department and then
 support department as the top 3. Based on this exploratory analysis, it
 is safe to say that the variables `satisafaction_level`,
 `number_project`, `average_monthly_hours`, `department`, and `salary`
-have a high impact on employee retention. Using these variables, I will
-proceed to building a logistic regression model to predict employee
+have a direct impact on employee retention. Using these variables, I
+will proceed to building a logistic regression model to predict employee
 retention.
