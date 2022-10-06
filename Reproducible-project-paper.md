@@ -16,6 +16,9 @@ Mwangi George
 -   <a href="#exploratory-data-analysis"
     id="toc-exploratory-data-analysis">Exploratory data analysis</a>
     -   <a href="#findings" id="toc-findings">Findings</a>
+-   <a href="#logistic-regression" id="toc-logistic-regression">Logistic
+    Regression</a>
+    -   <a href="#introduction-1" id="toc-introduction-1">Introduction</a>
 
 ## Introduction
 
@@ -26,7 +29,7 @@ employee retention.
 ## Loading necessary packages.
 
 For consistency of functions and productivity, I prefer working with the
-whole `tidyverse package`.
+wh %\>% ole `tidyverse package`.
 
 ``` r
 # loading the package tidyverse. 
@@ -44,15 +47,8 @@ library(tidyverse)
 
 ``` r
 # loading the package zoo for efficient dummy variable creation.
-library(zoo)
+library(fastDummies)
 ```
-
-    ## 
-    ## Attaching package: 'zoo'
-    ## 
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     as.Date, as.Date.numeric
 
 ## Loading dataset from working directory
 
@@ -263,7 +259,7 @@ hr_data %>%
 ``` r
 # bar chart showing impact of employees salaries on retention
 ggplot(data = hr_data)+
-  geom_bar(aes(x = salary, fill = left), position = "dodge")+
+  geom_bar(aes(x = salary, fill = left), position = "dodge", alpha = 0.8)+
   labs(title = "Employee Retention by Salary Category", y = "Count")+
   theme_classic()
 ```
@@ -329,9 +325,77 @@ hr_data %>%
 
 From the above chart, most of the employees who left the firm were in
 the sales department, followed by the technical department and then
-support department as the top 3. Based on this exploratory analysis, it
-is safe to say that the variables `satisafaction_level`,
-`number_project`, `average_monthly_hours`, `department`, and `salary`
-have a direct impact on employee retention. Using these variables, I
-will proceed to building a logistic regression model to predict employee
-retention.
+support department as the top 3.
+
+3.  **Correlation between `promotion_last_5years` and employee
+    retention**
+
+``` r
+#Modify the promotion_last_5years variable into "promoted" and "not promoted" for easy understanding of the visualization
+hr_data <- hr_data %>% 
+  mutate(promotion_last_5years = if_else(promotion_last_5years == 1, "promoted", "not promoted"))
+# print the fisrt 3 rows 
+head(hr_data, 3)
+```
+
+    ## # A tibble: 3 × 10
+    ##   satisfa…¹ last_…² numbe…³ avera…⁴ time_…⁵ work_…⁶ left  promo…⁷ depar…⁸ salary
+    ##       <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <fct>   <fct> <chr>   <fct>   <fct> 
+    ## 1      0.38    0.53       2     157       3 0       yes   not pr… sales   low   
+    ## 2      0.8     0.86       5     262       6 0       yes   not pr… sales   medium
+    ## 3      0.11    0.88       7     272       4 0       yes   not pr… sales   medium
+    ## # … with abbreviated variable names ¹​satisfaction_level, ²​last_evaluation,
+    ## #   ³​number_project, ⁴​average_montly_hours, ⁵​time_spend_company,
+    ## #   ⁶​work_accident, ⁷​promotion_last_5years, ⁸​department
+
+``` r
+# count the number of employee in each promotion category and group by whether they left or not
+xtabs(~ promotion_last_5years + left, data = hr_data)
+```
+
+    ##                      left
+    ## promotion_last_5years    no   yes
+    ##          not promoted 11128  3552
+    ##          promoted       300    19
+
+``` r
+# visualizing the above table
+hr_data %>% 
+  ggplot(aes(promotion_last_5years, fill = left))+
+  geom_bar(position = "dodge", alpha = 0.8)+
+  theme_classic()+
+  labs(title = "Employe Retention by Promotion last 5 years")
+```
+
+![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+From the above table and bar chart, not receiving a promotion has a high
+impact on retention. Out of a total of 3571 employees who left the
+company, 3552(about 99 percent) did not receive a promotion in the last
+five years. This produces the idea that the variable
+`promotion_last_5years` has a direct on employee retention.
+
+Based on this exploratory analysis, it is safe to say that the variables
+`satisfaction_level`, `average_monthly_hours`, `promotion_last_5years`,
+and `salary` have a direct impact on employee retention. Using these
+variables, I will proceed to building a logistic regression model to
+predict employee retention.
+
+## Logistic Regression
+
+### Introduction
+
+-   Logistic regression utilizes the method of maximum likelihood
+    estimation to identify an equation of the form *log\[p(X)/(1-p(x))\]
+    = B0 +B1X1 +B2X2 + … + BnXn*.
+
+-   The right hand side of the equation predicts the logit (log odds) of
+    the dependent variable taking the value 1. In my case, I am
+    predicting the probability of leaving (1) using the variables
+    `satisfaction_level`, `average_monthly_hours`,
+    `promotion_last_5years`, and `salary`.
+
+-   Forming an equation to represent this
+
+-   \`left = B0 + B1 x satisfaction_level + B2 x average_monthly_hours +
+    B3 x promotion_last_5years + B4 x salary
