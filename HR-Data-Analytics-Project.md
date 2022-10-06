@@ -192,7 +192,7 @@ unique(hr_data$left)
 ## Exploratory data analysis
 
 In this section, the objective is to find out which variables have a
-direct and clear impact on employee retention. TO accomplish this, I
+direct and clear impact on employee retention. To accomplish this, I
 will group the employees into two; those who left `yes` and those who
 stayed `no`. For the numeric variables, I will calculate the mean for
 each of the groups. These means are useful can be useful metrics to
@@ -219,6 +219,8 @@ hr_data %>%
 
 ### Findings
 
+-   **Part 1 - Numeric Variables**
+
 1.  There exists a big difference in the `mean_satisfaction_level`
     between employees who left and those who stayed. Employees who left
     had a lower satisfaction level compared to those who stayed by
@@ -235,3 +237,103 @@ hr_data %>%
     who left and those who stayed is quite big. On average, those who
     left appear to have been working more more than those who stayed by
     8.359 hours.
+5.  For the categorical variables i.e (`work_accident`, `department`,
+    and `salary`), I will have to take another approach to understand
+    their impact on employee retention.
+
+-   **Part 2 - Categorical Variables**
+
+1.  **Impact of employee salary on retention** Since I am dealing with
+    two categorical variables, the best way to understand their
+    relationship is through a visualization. First, I will create a
+    table that summarizes the salary categories by whether one left or
+    stayed.
+
+``` r
+# count the number of employees in each salary category and group by the left variable
+hr_data %>% 
+  select(left, salary) %>% 
+  group_by(left) %>% 
+  table()
+```
+
+    ##      salary
+    ## left  high  low medium
+    ##   no  1155 5144   5129
+    ##   yes   82 2172   1317
+
+``` r
+# bar chart showing impact of employees salaries on retention
+ggplot(data = hr_data)+
+  geom_bar(aes(x = salary, fill = left), position = "dodge")+
+  labs(title = "Employee Retention by Salary Category", y = "Count")+
+  theme_classic()
+```
+
+![](HR-Data-Analytics-Project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+From the above graph, most of the employees who left the company were in
+the low salary category, followed by medium then high. I notice that
+these results are consistent with theory.
+
+2.  **Correlation between Employee Department and Retention**
+
+``` r
+# count the number of employees in each department category and group by the left variable
+hr_data %>% 
+  select(department, left) %>% 
+  group_by(left) %>% 
+  table()
+```
+
+    ##              left
+    ## department      no  yes
+    ##   accounting   563  204
+    ##   hr           524  215
+    ##   IT           954  273
+    ##   management   539   91
+    ##   marketing    655  203
+    ##   product_mng  704  198
+    ##   RandD        666  121
+    ##   sales       3126 1014
+    ##   support     1674  555
+    ##   technical   2023  697
+
+``` r
+# Achieving the same using base R xtabs function
+xtabs(~department+ left, hr_data)
+```
+
+    ##              left
+    ## department      no  yes
+    ##   accounting   563  204
+    ##   hr           524  215
+    ##   IT           954  273
+    ##   management   539   91
+    ##   marketing    655  203
+    ##   product_mng  704  198
+    ##   RandD        666  121
+    ##   sales       3126 1014
+    ##   support     1674  555
+    ##   technical   2023  697
+
+``` r
+## bar chart showing correlation between Employee Department and Retention
+hr_data %>% 
+  ggplot(aes(department, fill = left))+
+  geom_bar(position = "dodge", alpha = 0.8)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(title = "Employee Retention by Department")
+```
+
+![](HR-Data-Analytics-Project_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+From the above chart, most of the employees who left the firm were in
+the sales department, followed by the technical department and then
+support department as the top 3. Based on this exploratory analysis, it
+is safe to say that the variables `satisafaction_level`,
+`number_project`, `average_monthly_hours`, `department`, and `salary`
+have a high impact on employee retention. Using these variables, I will
+proceed to building a logistic regression model to predict employee
+retention.
