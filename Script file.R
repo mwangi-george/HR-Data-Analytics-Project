@@ -5,8 +5,11 @@
 # loading the package tidyverse. 
 library(tidyverse) 
 
-# loading the package zoo for efficient dummy variable creation.
-library(zoo)
+# loading the package fastDummies for efficient dummy variable creation.
+library(fastDummies)
+
+# Loading the package mfx for calculating marginal effects of a model
+library(mfx)
 
 # Read data from working directory and stores it as hr_data in R
 hr_data <- read_csv("Dataset/HR_comma_sep.csv", 

@@ -19,6 +19,18 @@ Mwangi George
 -   <a href="#logistic-regression" id="toc-logistic-regression">Logistic
     Regression</a>
     -   <a href="#introduction-1" id="toc-introduction-1">Introduction</a>
+    -   <a href="#creating-training-and-test-samples"
+        id="toc-creating-training-and-test-samples">Creating training and test
+        samples</a>
+    -   <a href="#training-the-model" id="toc-training-the-model">Training the
+        model</a>
+    -   <a href="#calculating-marginal-effects"
+        id="toc-calculating-marginal-effects">Calculating marginal effects</a>
+    -   <a href="#simplified-table-of-the-results"
+        id="toc-simplified-table-of-the-results">Simplified table of the
+        results</a>
+    -   <a href="#results-interpretation"
+        id="toc-results-interpretation">Results Interpretation</a>
 
 ## Introduction
 
@@ -29,7 +41,7 @@ employee retention.
 ## Loading necessary packages.
 
 For consistency of functions and productivity, I prefer working with the
-wh %\>% ole `tidyverse package`.
+whole `tidyverse package`.
 
 ``` r
 # loading the package tidyverse. 
@@ -44,11 +56,6 @@ library(tidyverse)
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
-
-``` r
-# loading the package zoo for efficient dummy variable creation.
-library(fastDummies)
-```
 
 ## Loading dataset from working directory
 
@@ -246,7 +253,7 @@ hr_data %>%
 ``` r
 # count the number of employees in each salary category and group by the left variable
 hr_data %>% 
-  select(left, salary) %>% 
+  dplyr::select(left, salary) %>% 
   group_by(left) %>% 
   table()
 ```
@@ -275,7 +282,7 @@ these results are consistent with theory.
 ``` r
 # count the number of employees in each department category and group by the left variable
 hr_data %>% 
-  select(department, left) %>% 
+  dplyr::select(department, left) %>% 
   group_by(left) %>% 
   table()
 ```
@@ -387,7 +394,7 @@ predict employee retention.
 
 -   Logistic regression utilizes the method of maximum likelihood
     estimation to identify an equation of the form *log\[p(X)/(1-p(x))\]
-    = B0 +B1X1 +B2X2 + … + BnXn*.
+    = pr(D = 1) = B0 +B1X1 +B2X2 + … + BnXn + u*.
 
 -   The right hand side of the equation predicts the logit (log odds) of
     the dependent variable taking the value 1. In my case, I am
@@ -397,5 +404,368 @@ predict employee retention.
 
 -   Forming an equation to represent this
 
--   \`left = B0 + B1 x satisfaction_level + B2 x average_monthly_hours +
-    B3 x promotion_last_5years + B4 x salary
+-   ***\`left = B0 + B1 x satisfaction_level + B2 x
+    average_monthly_hours + B3 x promotion_last_5years + B4 x salary***
+
+-   **Selecting necessary variables and assigning the data to
+    model_data**
+
+``` r
+# selecting variables for use in modeling 
+
+model_data <- hr_data %>% 
+  dplyr::select(left, satisfaction_level, average_montly_hours, promotion_last_5years, salary)
+
+head(model_data)
+```
+
+    ## # A tibble: 6 × 5
+    ##   left  satisfaction_level average_montly_hours promotion_last_5years salary
+    ##   <fct>              <dbl>                <dbl> <chr>                 <fct> 
+    ## 1 yes                 0.38                  157 not promoted          low   
+    ## 2 yes                 0.8                   262 not promoted          medium
+    ## 3 yes                 0.11                  272 not promoted          medium
+    ## 4 yes                 0.72                  223 not promoted          low   
+    ## 5 yes                 0.37                  159 not promoted          low   
+    ## 6 yes                 0.41                  153 not promoted          low
+
+``` r
+# view the structure of new dataset 
+
+str(model_data)
+```
+
+    ## tibble [14,999 × 5] (S3: tbl_df/tbl/data.frame)
+    ##  $ left                 : Factor w/ 2 levels "no","yes": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ satisfaction_level   : num [1:14999] 0.38 0.8 0.11 0.72 0.37 0.41 0.1 0.92 0.89 0.42 ...
+    ##  $ average_montly_hours : num [1:14999] 157 262 272 223 159 153 247 259 224 142 ...
+    ##  $ promotion_last_5years: chr [1:14999] "not promoted" "not promoted" "not promoted" "not promoted" ...
+    ##  $ salary               : Factor w/ 3 levels "high","low","medium": 2 3 3 2 2 2 2 2 2 2 ...
+
+``` r
+# manipulating the variables promotion_last_5years and left into 1's and 0's
+model_data <- model_data %>% 
+  mutate(promotion_last_5years = if_else(promotion_last_5years == "promoted", 1,0)) %>% 
+  mutate(left = if_else(left == "yes", 1,0))
+
+# print first six rows
+head(model_data)
+```
+
+    ## # A tibble: 6 × 5
+    ##    left satisfaction_level average_montly_hours promotion_last_5years salary
+    ##   <dbl>              <dbl>                <dbl>                 <dbl> <fct> 
+    ## 1     1               0.38                  157                     0 low   
+    ## 2     1               0.8                   262                     0 medium
+    ## 3     1               0.11                  272                     0 medium
+    ## 4     1               0.72                  223                     0 low   
+    ## 5     1               0.37                  159                     0 low   
+    ## 6     1               0.41                  153                     0 low
+
+``` r
+# call the sapply function to check variable types
+sapply(model_data, class)
+```
+
+    ##                  left    satisfaction_level  average_montly_hours 
+    ##             "numeric"             "numeric"             "numeric" 
+    ## promotion_last_5years                salary 
+    ##             "numeric"              "factor"
+
+``` r
+# convert the variables promotion_last_5years and left into factors
+model_data <- model_data %>% 
+  mutate(left = as.factor(left)) %>% 
+  mutate(promotion_last_5years = as.factor(promotion_last_5years))
+
+# print first six rows
+head(model_data)
+```
+
+    ## # A tibble: 6 × 5
+    ##   left  satisfaction_level average_montly_hours promotion_last_5years salary
+    ##   <fct>              <dbl>                <dbl> <fct>                 <fct> 
+    ## 1 1                   0.38                  157 0                     low   
+    ## 2 1                   0.8                   262 0                     medium
+    ## 3 1                   0.11                  272 0                     medium
+    ## 4 1                   0.72                  223 0                     low   
+    ## 5 1                   0.37                  159 0                     low   
+    ## 6 1                   0.41                  153 0                     low
+
+``` r
+# call the sapply function again to check variable types
+sapply(model_data, class)
+```
+
+    ##                  left    satisfaction_level  average_montly_hours 
+    ##              "factor"             "numeric"             "numeric" 
+    ## promotion_last_5years                salary 
+    ##              "factor"              "factor"
+
+``` r
+# check if we have the correct data types 
+str(model_data)
+```
+
+    ## tibble [14,999 × 5] (S3: tbl_df/tbl/data.frame)
+    ##  $ left                 : Factor w/ 2 levels "0","1": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ satisfaction_level   : num [1:14999] 0.38 0.8 0.11 0.72 0.37 0.41 0.1 0.92 0.89 0.42 ...
+    ##  $ average_montly_hours : num [1:14999] 157 262 272 223 159 153 247 259 224 142 ...
+    ##  $ promotion_last_5years: Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ salary               : Factor w/ 3 levels "high","low","medium": 2 3 3 2 2 2 2 2 2 2 ...
+
+-   **Creating dummies for the variable salary**
+
+``` r
+# loading package for efficient dummy variable creation
+library(fastDummies)
+# Create dummies using the fastDummies package
+model_data <- dummy_cols(model_data, select_columns = "salary")
+head(model_data)
+```
+
+    ## # A tibble: 6 × 8
+    ##   left  satisfaction_level average_mont…¹ promo…² salary salar…³ salar…⁴ salar…⁵
+    ##   <fct>              <dbl>          <dbl> <fct>   <fct>    <int>   <int>   <int>
+    ## 1 1                   0.38            157 0       low          0       1       0
+    ## 2 1                   0.8             262 0       medium       0       0       1
+    ## 3 1                   0.11            272 0       medium       0       0       1
+    ## 4 1                   0.72            223 0       low          0       1       0
+    ## 5 1                   0.37            159 0       low          0       1       0
+    ## 6 1                   0.41            153 0       low          0       1       0
+    ## # … with abbreviated variable names ¹​average_montly_hours,
+    ## #   ²​promotion_last_5years, ³​salary_high, ⁴​salary_low, ⁵​salary_medium
+
+``` r
+# modify the created dummies into factors 
+model_data <- model_data %>% 
+  mutate(salary_high = as.factor(salary_high)) %>% 
+  mutate(salary_low = as.factor(salary_low)) %>% 
+  mutate(salary_medium = as.factor(salary_medium))
+head(model_data)
+```
+
+    ## # A tibble: 6 × 8
+    ##   left  satisfaction_level average_mont…¹ promo…² salary salar…³ salar…⁴ salar…⁵
+    ##   <fct>              <dbl>          <dbl> <fct>   <fct>  <fct>   <fct>   <fct>  
+    ## 1 1                   0.38            157 0       low    0       1       0      
+    ## 2 1                   0.8             262 0       medium 0       0       1      
+    ## 3 1                   0.11            272 0       medium 0       0       1      
+    ## 4 1                   0.72            223 0       low    0       1       0      
+    ## 5 1                   0.37            159 0       low    0       1       0      
+    ## 6 1                   0.41            153 0       low    0       1       0      
+    ## # … with abbreviated variable names ¹​average_montly_hours,
+    ## #   ²​promotion_last_5years, ³​salary_high, ⁴​salary_low, ⁵​salary_medium
+
+-   **Drop the column salary**
+
+``` r
+# deselect the column salary
+model_data <- model_data %>% 
+  dplyr::select(-salary)
+# Check for correct data types 
+str(model_data)
+```
+
+    ## tibble [14,999 × 7] (S3: tbl_df/tbl/data.frame)
+    ##  $ left                 : Factor w/ 2 levels "0","1": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ satisfaction_level   : num [1:14999] 0.38 0.8 0.11 0.72 0.37 0.41 0.1 0.92 0.89 0.42 ...
+    ##  $ average_montly_hours : num [1:14999] 157 262 272 223 159 153 247 259 224 142 ...
+    ##  $ promotion_last_5years: Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ salary_high          : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ salary_low           : Factor w/ 2 levels "0","1": 2 1 1 2 2 2 2 2 2 2 ...
+    ##  $ salary_medium        : Factor w/ 2 levels "0","1": 1 2 2 1 1 1 1 1 1 1 ...
+    ##  - attr(*, ".internal.selfref")=<externalptr>
+
+### Creating training and test samples
+
+-   This step involves splitting the dataset into a training set to
+    train the model on and a testing set to test the model on.
+
+``` r
+# To make my results reproducible
+set.seed(1)
+
+# Utilize 70 percent of the dataset as training set, and the remaining 30 percent as testing set.
+sample <- sample(c(T, F), nrow(model_data), replace = T, prob = c(0.7, 0.3))
+
+# assign train set to train
+train <- model_data[sample, ]
+
+#assign test set to test
+test <- model_data[!sample, ]
+```
+
+### Training the model
+
+``` r
+# fit the logistic regression model. I omit one dummy variable (salary_medium) to avoid the dummy variable trap
+logistic_model <- glm(left ~ satisfaction_level + average_montly_hours + promotion_last_5years + salary_high + salary_low, data = train, family = "binomial")
+
+# Disable the scientific notation for model summary
+options(scipen = 999)
+
+# call model summary
+summary(logistic_model)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = left ~ satisfaction_level + average_montly_hours + 
+    ##     promotion_last_5years + salary_high + salary_low, family = "binomial", 
+    ##     data = train)
+    ## 
+    ## Deviance Residuals: 
+    ##     Min       1Q   Median       3Q      Max  
+    ## -1.6359  -0.7018  -0.4813  -0.1888   2.7585  
+    ## 
+    ## Coefficients:
+    ##                          Estimate Std. Error z value             Pr(>|z|)    
+    ## (Intercept)             0.2300893  0.1214909   1.894               0.0582 .  
+    ## satisfaction_level     -3.7577705  0.1058720 -35.494 < 0.0000000000000002 ***
+    ## average_montly_hours    0.0026961  0.0004882   5.523         0.0000000334 ***
+    ## promotion_last_5years1 -1.2414339  0.2807097  -4.422         0.0000097573 ***
+    ## salary_high1           -1.3149267  0.1456135  -9.030 < 0.0000000000000002 ***
+    ## salary_low1             0.4807762  0.0526416   9.133 < 0.0000000000000002 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 11508.1  on 10474  degrees of freedom
+    ## Residual deviance:  9617.1  on 10469  degrees of freedom
+    ## AIC: 9629.1
+    ## 
+    ## Number of Fisher Scoring iterations: 5
+
+### Calculating marginal effects
+
+``` r
+# loading the mfx package to calculate marginal effects
+library(mfx)
+```
+
+    ## Loading required package: sandwich
+
+    ## Loading required package: lmtest
+
+    ## Loading required package: zoo
+
+    ## 
+    ## Attaching package: 'zoo'
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     as.Date, as.Date.numeric
+
+    ## Loading required package: MASS
+
+    ## 
+    ## Attaching package: 'MASS'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     select
+
+    ## Loading required package: betareg
+
+``` r
+# Calculate coefficient marginal effects 
+marginals <- logitmfx(logistic_model, data = train)
+
+# print marginals 
+marginals
+```
+
+    ## Call:
+    ## logitmfx(formula = logistic_model, data = train)
+    ## 
+    ## Marginal Effects:
+    ##                               dF/dx    Std. Err.        z                 P>|z|
+    ## satisfaction_level     -0.585600940  0.016121827 -36.3235 < 0.00000000000000022
+    ## average_montly_hours    0.000420151  0.000076546   5.4888     0.000000040456854
+    ## promotion_last_5years1 -0.131127097  0.017862274  -7.3410     0.000000000000212
+    ## salary_high1           -0.143944516  0.010079452 -14.2810 < 0.00000000000000022
+    ## salary_low1             0.075207864  0.008243888   9.1229 < 0.00000000000000022
+    ##                           
+    ## satisfaction_level     ***
+    ## average_montly_hours   ***
+    ## promotion_last_5years1 ***
+    ## salary_high1           ***
+    ## salary_low1            ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## dF/dx is for discrete change for the following variables:
+    ## 
+    ## [1] "promotion_last_5years1" "salary_high1"           "salary_low1"
+
+### Simplified table of the results
+
+``` r
+# combining results from the two outputs 
+results <- data.frame(variable = c("constant", "satisfaction_level", "average_montly_hours", "promotion_last_5years", "salary_high", "salary_low"),
+                      coefficient_estimate = c( 0.230089265, -3.757770499, 0.002696088, -1.241433934, -1.314926658,  0.480776151),
+                      marginal_effect = c(NA, -0.585600940, 0.000420151, -0.131127097,  -0.143944516,  0.075207864),
+                      P_value = c(0.0582, 0.0000000000000002, 0.0000000334, 0.0000097573, 0.0000000000000002, 0.0000000000000002))
+
+# print results
+results
+```
+
+    ##                variable coefficient_estimate marginal_effect            P_value
+    ## 1              constant          0.230089265              NA 0.0582000000000000
+    ## 2    satisfaction_level         -3.757770499    -0.585600940 0.0000000000000002
+    ## 3  average_montly_hours          0.002696088     0.000420151 0.0000000334000000
+    ## 4 promotion_last_5years         -1.241433934    -0.131127097 0.0000097573000000
+    ## 5           salary_high         -1.314926658    -0.143944516 0.0000000000000002
+    ## 6            salary_low          0.480776151     0.075207864 0.0000000000000002
+
+### Results Interpretation
+
+-   A coefficient in a logit model tells us the change in the log of the
+    odds ratio per unit change in the independent variable concerned
+    from its mean.
+-   Marginal effect of an independent variable gives us the change in
+    the expected value of (Di) caused by a one unit increase in X1i
+    holding constant the other independent variables in the equation.
+    Marginal effects equals.
+
+**We can therefore interpret the above logit model as follows:**
+
+1.  Holding all other factors constant, every unit increase in an
+    employee’s satisfaction level decreases the log of the odds ratio
+    (logit) of leaving the company by 3.757770499. Additionally, a unit
+    increase in satisfaction level reduces the probability of an
+    employee leaving the company by 0.585600940 (58.56%), holding other
+    factors constant. `satisfaction_level` is statistically significant
+    at 5% level of significance, therefore, a good predictor of employee
+    retention.
+
+2.  Holding all other factors constant, every unit increase in an
+    employee’s average monthly hours increases the log of the odds ratio
+    of leaving the company by 0.002696088. Also every unit increase of
+    an employee’s average monthly hours increases the probability of
+    leaving the company by 0.000420151 (0.042%), holding other factors
+    constant. `average_monthly_hours` is statistically significant at 5%
+    level of significance, therefore, a good predictor of employee
+    retention.
+
+3.  Holding all other factors constant, employees who have received a
+    promotion in the last 5 years have a lower logit of leaving the
+    company by 1.241433934. Additionally, their probability of leaving
+    the company reduces by 0.131127097 (13.11%), ceteris paribus.
+    `promotion_last_5years` is statistically significant at 5% level of
+    significance, therefore, a good predictor of employee retention.
+
+4.  Holding all other factors constant, employees who receive a high
+    salary have a lower logit of leaving the company by 1.314926658,
+    their probability of leaving the company reduces by 0.143944516.
+    `salary_high` is statistically significant at 5% level of
+    significance, therefore, a good predictor of employee retention.
+
+5.  Holding all other factors constant, employees who receive a low
+    salary have a higher logit of leaving the company by 0.480776151,
+    their probability of leaving the company reduces by 0.075207864.
+    `salary_low` is statistically significant at 5% level of
+    significance, therefore, a good predictor of employee retention.
