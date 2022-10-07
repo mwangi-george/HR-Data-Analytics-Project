@@ -105,6 +105,100 @@ hr_data %>%
   theme_classic()+
   labs(title = "Employe Retention by Promotion last 5 years")
 
+# selecting variables for use in modeling 
 
+model_data <- hr_data %>% 
+  dplyr::select(left, satisfaction_level, average_montly_hours, promotion_last_5years, salary)
+
+head(model_data)
+# view the structure of new dataset 
+
+str(model_data)
+# manipulating the variables promotion_last_5years and left into 1's and 0's
+model_data <- model_data %>% 
+  mutate(promotion_last_5years = if_else(promotion_last_5years == "promoted", 1,0)) %>% 
+  mutate(left = if_else(left == "yes", 1,0))
+
+# print first six rows
+head(model_data)
+
+# call the sapply function to check variable types
+sapply(model_data, class)
+
+# convert the variables promotion_last_5years and left into factors
+model_data <- model_data %>% 
+  mutate(left = as.factor(left)) %>% 
+  mutate(promotion_last_5years = as.factor(promotion_last_5years))
+
+# print first six rows
+head(model_data)
+
+# call the sapply function again to check variable types
+sapply(model_data, class)
+
+# check if we have the correct data types 
+str(model_data)
+
+
+
+# loading package for efficient dummy variable creation
+library(fastDummies)
+
+# Create dummies using the fastDummies package
+model_data <- dummy_cols(model_data, select_columns = "salary")
+head(model_data)
+
+# modify the created dummies into factors 
+model_data <- model_data %>% 
+  mutate(salary_high = as.factor(salary_high)) %>% 
+  mutate(salary_low = as.factor(salary_low)) %>% 
+  mutate(salary_medium = as.factor(salary_medium))
+head(model_data)
+
+# deselect the column salary
+model_data <- model_data %>% 
+  dplyr::select(-salary)
+
+# Check for correct data types 
+str(model_data)
+
+# To make my results reproducible
+set.seed(1)
+
+# Utilize 70 percent of the dataset as training set, and the remaining 30 percent as testing set.
+sample <- sample(c(T, F), nrow(model_data), replace = T, prob = c(0.7, 0.3))
+
+# assign train set to train
+train <- model_data[sample, ]
+
+#assign test set to test
+test <- model_data[!sample, ]
+
+# fit the logistic regression model. I omit one dummy variable (salary_medium) to avoid the dummy variable trap
+logistic_model <- glm(left ~ satisfaction_level + average_montly_hours + promotion_last_5years + salary_high + salary_low, data = train, family = "binomial")
+
+# Disable the scientific notation for model summary
+options(scipen = 999)
+
+# call model summary
+summary(logistic_model)
+
+# loading the mfx package to calculate marginal effects
+library(mfx)
+
+# Calculate coefficient marginal effects 
+marginals <- logitmfx(logistic_model, data = train)
+
+# print marginals 
+marginals
+
+# combining results from the two outputs 
+results <- data.frame(variable = c("constant", "satisfaction_level", "average_montly_hours", "promotion_last_5years", "salary_high", "salary_low"),
+                      coefficient_estimate = c( 0.230089265, -3.757770499, 0.002696088, -1.241433934, -1.314926658,  0.480776151),
+                      marginal_effect = c(NA, -0.585600940, 0.000420151, -0.131127097,  -0.143944516,  0.075207864),
+                      P_value = c(0.0582, 0.0000000000000002, 0.0000000334, 0.0000097573, 0.0000000000000002, 0.0000000000000002))
+
+# print results
+results
 
 
