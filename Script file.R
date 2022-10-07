@@ -201,4 +201,51 @@ results <- data.frame(variable = c("constant", "satisfaction_level", "average_mo
 # print results
 results
 
+# Calculate the pR2
+pscl::pR2(logistic_model)["McFadden"]
+
+# Alternatively, using base R functions
+with(summary(logistic_model), 1-deviance/null.deviance)
+
+# Calculate variable importance
+caret::varImp(logistic_model)
+
+# utilizing the vif function from the car package to check for multicollinearity
+car::vif(logistic_model)
+
+# Defining two new employees
+new <- data.frame(satisfaction_level = 0.64, average_montly_hours = 250, promotion_last_5years = c(1, 0), salary_high = c(0, 1), salary_low = c(1,0), salary_medium = 0)
+
+# changing categorical variables to factors 
+new <- new %>% 
+  mutate(promotion_last_5years = as.factor(promotion_last_5years),
+         salary_high = as.factor(salary_high),
+         salary_low = as.factor(salary_low),
+         salary_medium = as.factor(salary_medium))
+# view new
+head(new)
+
+# predict probability of leaving
+predict(logistic_model, new, type = "response")
+
+# calculate probabilities using the test data
+predicted <- predict(logistic_model, test, type = "response")
+
+# view the first 10 probabilities
+head(predicted, 10)
+
+# Loading the Information value package
+library(InformationValue)
+
+# find the optimal cutoff probability to use
+optimal <- optimalCutoff(test$left, predicted)[1]
+
+# print optimal 
+optimal
+
+# calculate misclassification error
+misClassError(test$left, predicted, threshold = optimal)
+
+# plot the ROC curve
+plotROC(test$left, predicted)
 

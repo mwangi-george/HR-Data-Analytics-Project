@@ -31,6 +31,23 @@ Mwangi George
         results</a>
     -   <a href="#results-interpretation"
         id="toc-results-interpretation">Results Interpretation</a>
+    -   <a href="#assessing-model-fitgoodness-of-fit"
+        id="toc-assessing-model-fitgoodness-of-fit">Assessing Model Fit/Goodness
+        of Fit</a>
+    -   <a href="#assessing-variable-importance"
+        id="toc-assessing-variable-importance">Assessing Variable importance</a>
+    -   <a href="#checking-for-multicollinearity"
+        id="toc-checking-for-multicollinearity">Checking for
+        Multicollinearity</a>
+    -   <a href="#use-the-fitted-model-to-make-predictions"
+        id="toc-use-the-fitted-model-to-make-predictions">Use the fitted model
+        to make predictions</a>
+    -   <a href="#model-diagnostics" id="toc-model-diagnostics">Model
+        Diagnostics</a>
+    -   <a href="#receiver-operating-characteristic-curve"
+        id="toc-receiver-operating-characteristic-curve">Receiver Operating
+        Characteristic Curve</a>
+-   <a href="#references" id="toc-references">References</a>
 
 ## Introduction
 
@@ -729,7 +746,6 @@ results
 -   Marginal effect of an independent variable gives us the change in
     the expected value of (Di) caused by a one unit increase in X1i
     holding constant the other independent variables in the equation.
-    Marginal effects equals.
 
 **We can therefore interpret the above logit model as follows:**
 
@@ -769,3 +785,224 @@ results
     their probability of leaving the company reduces by 0.075207864.
     `salary_low` is statistically significant at 5% level of
     significance, therefore, a good predictor of employee retention.
+
+### Assessing Model Fit/Goodness of Fit
+
+-   R2 is a metric that we use to measure the goodness of fit of a model
+    in a typical regression. However, in Logistic Regression, there is
+    no such R2 value. As an alternative, we calculate the McFadden’s R2,
+    which has a range of 0 to just below 1. Values that are very close
+    to 0 show that the model has no forecasting ability. Values over
+    0.40 often signify that a model fits the data well.
+
+-   To compute the McFadden’s R2, we use the `pR2 ()` from the `pscl`
+    package.
+
+``` r
+# Calculate the pR2
+pscl::pR2(logistic_model)["McFadden"]
+```
+
+    ## fitting null model for pseudo-r2
+
+    ##  McFadden 
+    ## 0.1643235
+
+``` r
+# Alternatively, using base R functions
+with(summary(logistic_model), 1-deviance/null.deviance)
+```
+
+    ## [1] 0.1643235
+
+-   The above output means that pseudo R2 is 0.1643235. In simple terms,
+    `satisfaction_level`, `average_montly_hours`,
+    `promotion_last_5years` and `salary` can explain for about 16.43
+    percent of the probability of an employee leaving the company,
+    leaving the rest (83.57 percent) to be explained by other variables
+    not in the model. This pseudo R2 square is quite low indicating poor
+    predictive power of the model. This calls for model improvement, but
+    that is not the major interest in this project.
+
+### Assessing Variable importance
+
+-   Using the `varImp()` function from the `caret` package, I can also
+    determine the importance of each explanatory variable used in the
+    model.
+
+``` r
+# Calculate variable importance
+caret::varImp(logistic_model)
+```
+
+    ##                          Overall
+    ## satisfaction_level     35.493516
+    ## average_montly_hours    5.522690
+    ## promotion_last_5years1  4.422483
+    ## salary_high1            9.030253
+    ## salary_low1             9.133005
+
+-   Greater values denote higher importance. Additionally, the values
+    should coincide with the model’s P-values. In my situation,
+    satisfaction level comes in as the clear leader, followed by salary,
+    average monthly hours, and promotion last 5years.
+
+### Checking for Multicollinearity
+
+-   In a multiple regression analysis, multicollinearity is said to
+    occur when there is a correlation between several independent
+    variables, as per Kim (2019). To determine whether multicollinearity
+    is an issue in this scenario, I will utilize the Variance Inflation
+    Factor (VIF), a measure of the degree of multicollinearity in
+    regression.
+
+``` r
+# utilizing the vif function from the car package 
+car::vif(logistic_model)
+```
+
+    ##    satisfaction_level  average_montly_hours promotion_last_5years 
+    ##              1.005144              1.002352              1.002419 
+    ##           salary_high            salary_low 
+    ##              1.049310              1.051234
+
+-   A VIF score above 4 or 5 often denotes strong multicollinearity
+    between an explanatory variable and other explanatory variables. An
+    explanatory variable does not have a correlation with other
+    explanatory variables if its value is 1.
+
+-   Given that none of my explanatory variables have a VIF greater than
+    4, I can infer that multicollinearity is not a problem in my model.
+
+### Use the fitted model to make predictions
+
+-   Having fitted the model, I can utilize it to predict whether an
+    employee will leave the company based on their satisfaction level,
+    average monthly hours, promotion status, and salary category.
+
+``` r
+# Defining two new employees
+new <- data.frame(satisfaction_level = 0.64, average_montly_hours = 250, promotion_last_5years = c(1, 0), salary_high = c(0, 1), salary_low = c(1,0), salary_medium = 0)
+
+# changing categorical variables to factors 
+new <- new %>% 
+  mutate(promotion_last_5years = as.factor(promotion_last_5years),
+         salary_high = as.factor(salary_high),
+         salary_low = as.factor(salary_low),
+         salary_medium = as.factor(salary_medium))
+# view new
+head(new)
+```
+
+    ##   satisfaction_level average_montly_hours promotion_last_5years salary_high
+    ## 1               0.64                  250                     1           0
+    ## 2               0.64                  250                     0           1
+    ##   salary_low salary_medium
+    ## 1          1             0
+    ## 2          0             0
+
+``` r
+# predict probability of leaving
+predict(logistic_model, new, type = "response")
+```
+
+    ##          1          2 
+    ## 0.09436042 0.05647693
+
+-   The probability of leaving of an employee with a satisfaction level
+    of 0.64, 250 average monthly hours, has received a promotion in the
+    last five years and earns a low salary is 0.09436042 (about 9.44
+    percent). Conversely, the probability of leaving of an employee with
+    the same satisfaction level and average monthly hours, has not
+    received a promotion in the last 5 years and earns a high salary is
+    0.05647693 (about 5.65 percent).
+
+-   I can there use the model to calculate the probability of leaving of
+    each employee in the test data created in an earlier stage.
+
+``` r
+# calculate probabilities using the test data
+predicted <- predict(logistic_model, test, type = "response")
+
+# view the first 10 probabilities
+head(predicted, 10)
+```
+
+    ##         1         2         3         4         5         6         7         8 
+    ## 0.1988493 0.3971585 0.7312595 0.4322768 0.3661528 0.1776000 0.1917521 0.7422713 
+    ##         9        10 
+    ## 0.3811379 0.1440041
+
+### Model Diagnostics
+
+\*It is now time to analyze how well the model performs on the test
+data.Any employee in the test data whose likelihood is 0.5 or above will
+automatically be predicted to leave the company. Using the
+`OptimalCutoff()` function from the `InformationValue` Package, I can,
+however, determine the optimal probability to employ in order to
+optimize the model’s accuracy.
+
+``` r
+# Loading the Information value package
+library(InformationValue)
+
+# find the optimal cutoff probability to use
+optimal <- optimalCutoff(test$left, predicted)[1]
+
+# print optimal 
+optimal
+```
+
+    ## [1] 0.6200252
+
+-   The results show that 0.6200252 is the appropriate probability
+    limit. An employee with a predicted likelihood of at least 0.6200252
+    will almost certainly quit the organization, whereas one with a
+    forecasted probability of less than 0.6200252 will almost certainly
+    stay on.
+
+-   Using the function `misClassError()` from the `InformationValue`
+    package, I can also determine the overall misclassification error,
+    which is the proportion of all incorrect classifications.
+
+``` r
+# calculate misclassification error
+misClassError(test$left, predicted, threshold = optimal)
+```
+
+    ## [1] 0.1954
+
+\*19.54 percent is the overall misclassification rate for my model. In
+broad sense, the lower the misclassification rate,the better. It denotes
+that the model is capable of predicting the results (whether an employee
+will leave or not).
+
+### Receiver Operating Characteristic Curve
+
+Last but not least, I can plot the ROC curve, which shows the proportion
+of true positives the model correctly predicts when the prediction
+probability cutoff is dropped from 1 to 0. The higher the area under the
+curve (AUC), the more accurately the model is able to predict outcomes
+(Kim & Hwang, 2020). Once more, this phase requires the use of the
+`InformationValue` package.
+
+``` r
+# plot the ROC curve
+plotROC(test$left, predicted)
+```
+
+![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+-   The area under the curve is 0.7682, which is a high value, according
+    to the graph above. This shows that my logistic regression model is
+    effective at predicting whether or not an employee would leave the
+    organization.
+
+## References
+
+-   Kim, J. H. (2019). Multicollinearity and misleading statistical
+    results. *Korean journal of anesthesiology*, 72(6), 558-569.
+
+-   Kim, J., & Hwang, I. C. (2020). Drawing guidelines for receiver
+    operating characteristic curve in preparation of manuscripts.
+    *Journal of Korean Medical Science*, 35(24).
