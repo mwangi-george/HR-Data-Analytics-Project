@@ -116,12 +116,11 @@ glimpse(hr_data)
 ``` r
 # convert the variables work_accident, left, promotion_last_5years, Department, and salary into factors.
 hr_data <- hr_data %>% 
-  mutate(Work_accident = as.factor(Work_accident)) %>% 
-  mutate(left = as.factor(left)) %>% 
-  mutate(promotion_last_5years = as.factor(promotion_last_5years)) %>% 
-  mutate(Department = as.factor(Department)) %>% 
-  mutate(salary = as.factor(salary))
-
+  mutate(Work_accident = as.factor(Work_accident),
+         left = as.factor(left),
+         promotion_last_5years = as.factor(promotion_last_5years),
+         Department = as.factor(Department),
+         salary = as.factor(salary)) 
 # print new variables and their class
 sapply(hr_data, class)
 ```
@@ -556,9 +555,10 @@ head(model_data)
 ``` r
 # modify the created dummies into factors 
 model_data <- model_data %>% 
-  mutate(salary_high = as.factor(salary_high)) %>% 
-  mutate(salary_low = as.factor(salary_low)) %>% 
-  mutate(salary_medium = as.factor(salary_medium))
+  mutate(salary_high = as.factor(salary_high),
+         salary_low = as.factor(salary_low),
+         salary_medium = as.factor(salary_medium)) 
+# print first six rows
 head(model_data)
 ```
 
