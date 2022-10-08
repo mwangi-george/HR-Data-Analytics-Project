@@ -49,6 +49,7 @@ Mwangi George
         Characteristic Curve</a>
 -   <a href="#recommendations" id="toc-recommendations">Recommendations</a>
 -   <a href="#references" id="toc-references">References</a>
+-   <a href="#appendix" id="toc-appendix">Appendix</a>
 
 ## Introduction
 
@@ -750,6 +751,7 @@ results
 -   A coefficient in a logit model tells us the change in the log of the
     odds ratio per unit change in the independent variable concerned
     from its mean.
+
 -   Marginal effect of an independent variable gives us the change in
     the expected value of (Di) caused by a one unit increase in X1i
     holding constant the other independent variables in the equation.
@@ -1030,3 +1032,21 @@ wonder when their next pay raise could be coming.
 -   Kim, J., & Hwang, I. C. (2020). Drawing guidelines for receiver
     operating characteristic curve in preparation of manuscripts.
     *Journal of Korean Medical Science*, 35(24).
+
+## Appendix
+
+-   Pictorial View of the dataset
+
+``` r
+knitr::include_graphics("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\Hr_data_view.jpg")
+```
+
+![](Hr_data_view.jpg)<!-- -->
+
+-   Regression Output
+
+``` r
+knitr::include_graphics("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\regression_output.jpg")
+```
+
+![](regression_output.jpg)<!-- -->
