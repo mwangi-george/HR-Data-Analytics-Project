@@ -4,8 +4,8 @@ Mwangi George
 2022-10-05
 
 -   <a href="#introduction" id="toc-introduction">Introduction</a>
--   <a href="#loading-necessary-packages"
-    id="toc-loading-necessary-packages">Loading necessary packages.</a>
+-   <a href="#loading-important-packages"
+    id="toc-loading-important-packages">Loading important packages.</a>
 -   <a href="#loading-dataset-from-working-directory"
     id="toc-loading-dataset-from-working-directory">Loading dataset from
     working directory</a>
@@ -47,18 +47,19 @@ Mwangi George
     -   <a href="#receiver-operating-characteristic-curve"
         id="toc-receiver-operating-characteristic-curve">Receiver Operating
         Characteristic Curve</a>
+-   <a href="#recommendations" id="toc-recommendations">Recommendations</a>
 -   <a href="#references" id="toc-references">References</a>
 
 ## Introduction
 
-As noted in the README file, my main focus in this markdown is to
-conduct Exploratory Data Analysis (EDA) and build a model that predicts
-employee retention.
+-   As noted in the README file, my main focus in this markdown is to
+    conduct Exploratory Data Analysis (EDA) and build a model that
+    predicts employee retention.
 
-## Loading necessary packages.
+## Loading important packages.
 
-For consistency of functions and productivity, I prefer working with the
-whole `tidyverse package`.
+-   For consistency of functions and productivity, I prefer working with
+    the whole `tidyverse package`.
 
 ``` r
 # loading the package tidyverse. 
@@ -76,7 +77,7 @@ library(tidyverse)
 
 ## Loading dataset from working directory
 
-The dataset is in the comma separated values format.
+-   The dataset is in the comma separated values format.
 
 ``` r
 # Read data from working directory and stores it as hr_data in R
@@ -86,8 +87,8 @@ hr_data <- read_csv("Dataset/HR_comma_sep.csv",
 
 ## Understanding the dataframe.
 
-Before jumping into the actual tasks, it is important that I understand
-the data I am working with
+-   Before jumping into the actual tasks, it is important that I
+    understand the data I am working with
 
 ``` r
 # Print the structure of the dataframe
@@ -208,12 +209,12 @@ unique(hr_data$left)
 
 ## Exploratory data analysis
 
-In this section, the objective is to find out which variables have a
-direct and clear impact on employee retention. To accomplish this, I
-will group the employees into two; those who left `yes` and those who
-stayed `no`. For the numeric variables, I will calculate the mean for
-each of the groups. These means can be useful metrics to explain
-employee retention.
+-   In this section, the objective is to find out which variables have a
+    direct and clear impact on employee retention. To accomplish this, I
+    will group the employees into two; those who left `yes` and those
+    who stayed `no`. For the numeric variables, I will calculate the
+    mean for each of the groups. These means can be useful metrics to
+    explain employee retention.
 
 ``` r
 # summarize the data using the variable left based on mean (EDA)
@@ -244,27 +245,31 @@ hr_data %>%
     0.2267116 `(0.6668096-0.4400980)`. This could explain why they left
     but further statistical analysis is necessary to test whether the
     difference observed is statistically significant.
+
 2.  There is no clear impact of the variable `last_evaluation` on
     employee retention since the means for both groups are nearly equal.
-    Mean difference of
+
 3.  The same case applies to `mean_number_project`. The difference is
     very small but statistical analysis is vital to test if it is indeed
     statistically significant.
+
 4.  The difference in the `mean_average_monthly_hours` between employees
     who left and those who stayed is quite big. On average, those who
     left appear to have been working more more than those who stayed by
     8.359 hours.
+
 5.  For the categorical variables i.e (`work_accident`, `department`,
     and `salary`), I will have to take another approach to understand
     their impact on employee retention.
 
 -   **Part 2 - Categorical Variables**
 
-1.  **Impact of employee salary on retention** Since I am dealing with
-    two categorical variables, the best way to understand their
-    relationship is through a visualization. First, I will create a
-    table that summarizes the salary categories by whether one left or
-    stayed.
+1.  **Impact of employee salary on retention**
+
+-   Since I am dealing with two categorical variables, the best way to
+    understand their relationship is through a visualization. First, I
+    will create a table that summarizes the salary categories by whether
+    one left or stayed.
 
 ``` r
 # count the number of employees in each salary category and group by the left variable
@@ -289,9 +294,9 @@ ggplot(data = hr_data)+
 
 ![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-From the above graph, most of the employees who left the company were in
-the low salary category, followed by medium then high. I notice that
-these results are consistent with theory.
+-   From the above graph, most of the employees who left the company
+    were in the low salary category, followed by medium then high. I
+    notice that these results are consistent with theory.
 
 2.  **Correlation between Employee Department and Retention**
 
@@ -346,15 +351,15 @@ hr_data %>%
 
 ![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-From the above chart, most of the employees who left the firm were in
-the sales department, followed by the technical department and then
-support department as the top 3.
+-   From the above chart, most of the employees who left the firm were
+    in the sales department, followed by the technical department and
+    then support department as the top 3.
 
 3.  **Correlation between `promotion_last_5years` and employee
     retention**
 
 ``` r
-#Modify the promotion_last_5years variable into "promoted" and "not promoted" for easy understanding of the visualization
+#Modify the variable promotion_last_5years into "promoted" and "not promoted" for easy understanding of the visualization
 hr_data <- hr_data %>% 
   mutate(promotion_last_5years = if_else(promotion_last_5years == 1, "promoted", "not promoted"))
 # print the first 3 rows 
@@ -392,17 +397,17 @@ hr_data %>%
 
 ![](Reproducible-project-paper_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
-From the above table and bar chart, not receiving a promotion has a high
-impact on retention. Out of a total of 3571 employees who left the
-company, 3552(about 99 percent) did not receive a promotion in the last
-five years. This produces the idea that the variable
-`promotion_last_5years` has a direct on employee retention.
+-   From the above table and bar chart, not receiving a promotion has a
+    high impact on retention. Out of a total of 3571 employees who left
+    the company, 3552(about 99 percent) did not receive a promotion in
+    the last five years. This produces the idea that the variable
+    `promotion_last_5years` has a direct on employee retention.
 
-Based on this exploratory analysis, it is safe to say that the variables
-`satisfaction_level`, `average_monthly_hours`, `promotion_last_5years`,
-and `salary` have a direct impact on employee retention. Using these
-variables, I will proceed to building a logistic regression model to
-predict employee retention.
+-   Based on this exploratory analysis, it is safe to say that the
+    variables `satisfaction_level`, `average_monthly_hours`,
+    `promotion_last_5years`, and `salary` have a direct impact on
+    employee retention. Using these variables, I will proceed to
+    building a logistic regression model to predict employee retention.
 
 ## Logistic Regression
 
@@ -420,18 +425,18 @@ predict employee retention.
 
 -   Forming an equation to represent this
 
--   ***\`left = B0 + B1 x satisfaction_level + B2 x
-    average_monthly_hours + B3 x promotion_last_5years + B4 x salary***
+-   *\`left = B0 + B1 x satisfaction_level + B2 x
+    average_monthly_hours + B3 x promotion_last_5years + B4 x salary*
 
 -   **Selecting necessary variables and assigning the data to
     model_data**
 
 ``` r
-# selecting variables for use in modeling 
-
+# select variables for use in modeling 
 model_data <- hr_data %>% 
   dplyr::select(left, satisfaction_level, average_montly_hours, promotion_last_5years, salary)
 
+# print first six rows
 head(model_data)
 ```
 
@@ -447,7 +452,6 @@ head(model_data)
 
 ``` r
 # view the structure of new dataset 
-
 str(model_data)
 ```
 
@@ -479,7 +483,7 @@ head(model_data)
     ## 6     1               0.41                  153                     0 low
 
 ``` r
-# call the sapply function to check variable types
+# check variable types
 sapply(model_data, class)
 ```
 
@@ -509,7 +513,7 @@ head(model_data)
     ## 6 1                   0.41                  153 0                     low
 
 ``` r
-# call the sapply function again to check variable types
+# check variable types
 sapply(model_data, class)
 ```
 
@@ -519,7 +523,7 @@ sapply(model_data, class)
     ##              "factor"              "factor"
 
 ``` r
-# check if we have the correct data types 
+# check correct data types 
 str(model_data)
 ```
 
@@ -533,8 +537,9 @@ str(model_data)
 -   **Creating dummies for the variable salary**
 
 ``` r
-# loading package for efficient dummy variable creation
+# loading fastDummies package for efficient dummy variable creation
 library(fastDummies)
+
 # Create dummies using the fastDummies package
 model_data <- dummy_cols(model_data, select_columns = "salary")
 head(model_data)
@@ -558,6 +563,7 @@ model_data <- model_data %>%
   mutate(salary_high = as.factor(salary_high),
          salary_low = as.factor(salary_low),
          salary_medium = as.factor(salary_medium)) 
+
 # print first six rows
 head(model_data)
 ```
@@ -580,6 +586,7 @@ head(model_data)
 # deselect the column salary
 model_data <- model_data %>% 
   dplyr::select(-salary)
+
 # Check for correct data types 
 str(model_data)
 ```
@@ -616,7 +623,7 @@ test <- model_data[!sample, ]
 ### Training the model
 
 ``` r
-# fit the logistic regression model. I omit one dummy variable (salary_medium) to avoid the dummy variable trap
+# fitting the logistic regression model. I omit one dummy variable (salary_medium) to avoid the dummy variable trap
 logistic_model <- glm(left ~ satisfaction_level + average_montly_hours + promotion_last_5years + salary_high + salary_low, data = train, family = "binomial")
 
 # Disable the scientific notation for model summary
@@ -776,14 +783,14 @@ results
 
 4.  Holding all other factors constant, employees who receive a high
     salary have a lower logit of leaving the company by 1.314926658,
-    their probability of leaving the company reduces by 0.143944516.
-    `salary_high` is statistically significant at 5% level of
+    their probability of leaving the company reduces by 0.143944516
+    (14.39%). `salary_high` is statistically significant at 5% level of
     significance, therefore, a good predictor of employee retention.
 
 5.  Holding all other factors constant, employees who receive a low
     salary have a higher logit of leaving the company by 0.480776151,
-    their probability of leaving the company reduces by 0.075207864.
-    `salary_low` is statistically significant at 5% level of
+    their probability of leaving the company increases by 0.075207864
+    (7.52%). `salary_low` is statistically significant at 5% level of
     significance, therefore, a good predictor of employee retention.
 
 ### Assessing Model Fit/Goodness of Fit
@@ -935,12 +942,12 @@ head(predicted, 10)
 
 ### Model Diagnostics
 
-\*It is now time to analyze how well the model performs on the test
-data.Any employee in the test data whose likelihood is 0.5 or above will
-automatically be predicted to leave the company. Using the
-`OptimalCutoff()` function from the `InformationValue` Package, I can,
-however, determine the optimal probability to employ in order to
-optimize the model’s accuracy.
+-   It is now time to analyze how well the model performs on the test
+    data.Any employee in the test data whose likelihood is 0.5 or above
+    will automatically be predicted to leave the company. Using the
+    `OptimalCutoff()` function from the `InformationValue` Package, I
+    can, however, determine the optimal probability to employ in order
+    to optimize the model’s accuracy.
 
 ``` r
 # Loading the Information value package
@@ -972,10 +979,10 @@ misClassError(test$left, predicted, threshold = optimal)
 
     ## [1] 0.1954
 
-\*19.54 percent is the overall misclassification rate for my model. In
-broad sense, the lower the misclassification rate,the better. It denotes
-that the model is capable of predicting the results (whether an employee
-will leave or not).
+-   19.54 percent is the overall misclassification rate for my model. In
+    broad sense, the lower the misclassification rate,the better. It
+    denotes that the model is capable of predicting the results (whether
+    an employee will leave or not).
 
 ### Receiver Operating Characteristic Curve
 
@@ -997,6 +1004,23 @@ plotROC(test$left, predicted)
     to the graph above. This shows that my logistic regression model is
     effective at predicting whether or not an employee would leave the
     organization.
+
+## Recommendations
+
+According to the findings above, job satisfaction is by far the most
+crucial aspect to take into account when developing changes that promote
+staff retention. In fact, the investigation revealed that a unit
+increase in an employee’s level of satisfaction will lower that
+employee’s likelihood of quitting the organization by 58.56%. The
+management of this organization may increase employee happiness by
+paying competitive salaries, acknowledging achievements, listening to
+problems, providing more incentives, and being open and honest. The
+management also need to be cognizant of the time that workers spend
+working for the organization. Employees should have adequate time for
+personal growth. Besides, overworking them just makes them more likely
+to leave the organization. Finally, the organization should have a
+defined promotion process in place so that staff members never have to
+wonder when their next pay raise could be coming.
 
 ## References
 
