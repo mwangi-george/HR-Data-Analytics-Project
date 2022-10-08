@@ -1038,7 +1038,7 @@ wonder when their next pay raise could be coming.
 -   Pictorial View of the dataset
 
 ``` r
-knitr::include_graphics("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\Hr_data_view.jpg")
+knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\Hr_data_view.jpg"))
 ```
 
 ![](Hr_data_view.jpg)<!-- -->
@@ -1046,7 +1046,7 @@ knitr::include_graphics("D:\\HR Data Analytics project\\HR-Data-Analytics-Projec
 -   Regression Output
 
 ``` r
-knitr::include_graphics("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\regression_output.jpg")
+knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\regression_output.jpg"))
 ```
 
 ![](regression_output.jpg)<!-- -->
