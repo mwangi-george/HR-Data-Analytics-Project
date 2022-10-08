@@ -1041,7 +1041,7 @@ wonder when their next pay raise could be coming.
 knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\Hr_data_view.jpg"))
 ```
 
-![](Hr_data_view.jpg)<!-- -->
+<img src="Hr_data_view.jpg" width="100%" />
 
 -   Regression Output
 
@@ -1049,4 +1049,4 @@ knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-An
 knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\regression_output.jpg"))
 ```
 
-![](regression_output.jpg)<!-- -->
+<img src="regression_output.jpg" width="100%" />
