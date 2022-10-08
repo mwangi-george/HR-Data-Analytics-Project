@@ -48,6 +48,7 @@ Mwangi George
         id="toc-receiver-operating-characteristic-curve">Receiver Operating
         Characteristic Curve</a>
 -   <a href="#recommendations" id="toc-recommendations">Recommendations</a>
+-   <a href="#appendix" id="toc-appendix">Appendix</a>
 -   <a href="#references" id="toc-references">References</a>
 -   <a href="#contact-me" id="toc-contact-me">Contact Me</a>
 
@@ -1054,6 +1055,12 @@ personal growth. Besides, overworking them just makes them more likely
 to leave the organization. Finally, the organization should have a
 defined promotion process in place so that staff members never have to
 wonder when their next pay raise could be coming.
+
+## Appendix
+
+-   **Regression Output** ![](images/regression_output.jpg)
+
+-   **Pictorial view of the dataset** ![](images/Hr_data_view.jpg)
 
 ## References
 
