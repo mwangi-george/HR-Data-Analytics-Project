@@ -1046,8 +1046,8 @@ wonder when their next pay raise could be coming.
 
 ## Contact Me
 
-[WhatsApp](wa.me/+254778988313)
+[WhatsApp](wa.me//+254778988313)
 
 [Follow me on Twitter](https://twitter.com/mwangi__george)
 
-[Lets connect on Linked](https://www.linked.com/in/georgemwangikenya)
+[Lets connect on Linked](https://www.linkedin.com/in/georgemwangikenya)
