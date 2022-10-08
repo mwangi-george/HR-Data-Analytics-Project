@@ -49,7 +49,6 @@ Mwangi George
         Characteristic Curve</a>
 -   <a href="#recommendations" id="toc-recommendations">Recommendations</a>
 -   <a href="#references" id="toc-references">References</a>
--   <a href="#appendix" id="toc-appendix">Appendix</a>
 -   <a href="#contact-me" id="toc-contact-me">Contact Me</a>
 
 ## Introduction
@@ -1064,16 +1063,6 @@ wonder when their next pay raise could be coming.
 -   Kim, J., & Hwang, I. C. (2020). Drawing guidelines for receiver
     operating characteristic curve in preparation of manuscripts.
     *Journal of Korean Medical Science*, 35(24).
-
-## Appendix
-
--   **Pictorial View of the dataset**
-
-![Pictorial View of the dataset](Hr_data_view.jpg)
-
--   **Regression Output**
-
-![Regression Output](regression_output.jpg)
 
 ## Contact Me
 
