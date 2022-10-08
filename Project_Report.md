@@ -64,7 +64,7 @@ Mwangi George
     the whole `tidyverse package`.
 
 ``` r
-# loading the package tidyverse. 
+# loading important packages. 
 library(tidyverse) 
 ```
 
@@ -76,6 +76,63 @@ library(tidyverse)
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
+
+``` r
+library(mfx)
+```
+
+    ## Loading required package: sandwich
+    ## Loading required package: lmtest
+    ## Loading required package: zoo
+    ## 
+    ## Attaching package: 'zoo'
+    ## 
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     as.Date, as.Date.numeric
+    ## 
+    ## Loading required package: MASS
+    ## 
+    ## Attaching package: 'MASS'
+    ## 
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     select
+    ## 
+    ## Loading required package: betareg
+
+``` r
+library(InformationValue)
+library(car)
+```
+
+    ## Loading required package: carData
+    ## 
+    ## Attaching package: 'car'
+    ## 
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     recode
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     some
+
+``` r
+library(caret)
+```
+
+    ## Loading required package: lattice
+    ## 
+    ## Attaching package: 'caret'
+    ## 
+    ## The following objects are masked from 'package:InformationValue':
+    ## 
+    ##     confusionMatrix, precision, sensitivity, specificity
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     lift
 
 ## Loading dataset from working directory
 
@@ -669,33 +726,7 @@ summary(logistic_model)
 ``` r
 # loading the mfx package to calculate marginal effects
 library(mfx)
-```
 
-    ## Loading required package: sandwich
-
-    ## Loading required package: lmtest
-
-    ## Loading required package: zoo
-
-    ## 
-    ## Attaching package: 'zoo'
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     as.Date, as.Date.numeric
-
-    ## Loading required package: MASS
-
-    ## 
-    ## Attaching package: 'MASS'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     select
-
-    ## Loading required package: betareg
-
-``` r
 # Calculate coefficient marginal effects 
 marginals <- logitmfx(logistic_model, data = train)
 
