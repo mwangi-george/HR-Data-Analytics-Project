@@ -50,6 +50,7 @@ Mwangi George
 -   <a href="#recommendations" id="toc-recommendations">Recommendations</a>
 -   <a href="#references" id="toc-references">References</a>
 -   <a href="#appendix" id="toc-appendix">Appendix</a>
+-   <a href="#contact-me" id="toc-contact-me">Contact Me</a>
 
 ## Introduction
 
@@ -1035,18 +1036,18 @@ wonder when their next pay raise could be coming.
 
 ## Appendix
 
--   Pictorial View of the dataset
+-   **Pictorial View of the dataset**
 
-``` r
-knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\Hr_data_view.jpg"))
-```
+![Pictorial View of the dataset](Hr_data_view.jpg)
 
-<img src="Hr_data_view.jpg" width="100%" />
+-   **Regression Output**
 
--   Regression Output
+![Regression Output](regression_output.jpg)
 
-``` r
-knitr::include_graphics(normalizePath("D:\\HR Data Analytics project\\HR-Data-Analytics-Project\\regression_output.jpg"))
-```
+## Contact Me
 
-<img src="regression_output.jpg" width="100%" />
+[WhatsApp](wa.me/+254778988313)
+
+[Follow me on Twitter](https://twitter.com/mwangi__george)
+
+[Lets connect on Linked](https://www.linked.com/in/georgemwangikenya)
